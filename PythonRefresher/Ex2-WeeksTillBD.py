@@ -2,5 +2,5 @@ import math
 
 days=int(input("How many days left till birthday"))
 weeks = days / 7
-weeks = round(weeks)
+weeks = math.floor(weeks)
 print(f"{weeks} weeks left till birthday ")
