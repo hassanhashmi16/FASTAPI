@@ -54,3 +54,30 @@ async def update_book(updated_book=Body()):
         if BOOKS[i].get('title').casefold() == updated_book.get('title').casefold():
             BOOKS[i] = updated_book
     return BOOKS
+
+@app.delete("/books/delete_book/{book_title}")
+async def delete_book(book_title : str):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].get('title').casefold() == book_title.casefold():
+            BOOKS.pop(i)
+            break
+
+@app.get("/books/read_books_from_author/{author}")
+async def read_books_from_author(author : str):
+    books_to_be_returned = []
+    for book in BOOKS:
+        if book.get('author').casefold() == author.casefold():
+            books_to_be_returned.append(book)
+            return books_to_be_returned
+@app.get("/books/read_books_from_author_using_query_params/")
+async def read_books_from_author_using_query_params(author : str):
+    books = []
+    # for i in range(len(BOOKS)):
+    #     if BOOKS[i].get('author').casefold() == author.casefold():
+    #         books.append(BOOKS[i])
+    # return books
+
+    for book in BOOKS:
+        if book.get('author').casefold() == author.casefold():
+            books.append(book)
+    return books
