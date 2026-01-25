@@ -10,13 +10,15 @@ class Book:
     author : str
     desc : str
     rating : int
+    published_date : int
 
-    def __init__(self , id , title , author , desc , rating):
+    def __init__(self , id , title , author , desc , rating , published_date):
         self.id = id
         self.title = title
         self.author = author
         self.desc = desc
         self.rating = rating
+        self.published_date = published_date
 
 class BookRequest(BaseModel):
     id: Optional[int] = Field(description="ID iss not needed on create" , default=None)
@@ -24,6 +26,7 @@ class BookRequest(BaseModel):
     author : str = Field(min_length=2)
     desc : str = Field(min_length=3)
     rating : int = Field(gt=0 , lt =6)
+    published_date : int = Field(gt= 0 , lt=2030)
 
     model_config = {
         "json_schema_extra" : {
@@ -31,21 +34,22 @@ class BookRequest(BaseModel):
                 "title" :"Book title",
                 "author" : "Author name",
                 "desc" : "Description",
-                "rating" : "5"
+                "rating" : "5" ,
+                "published_date" : "2000"
             }
         }
     }
 BOOKS = [
-    Book(1, "Computer Science Pro", "codingwithroby", "A very nice book about core CS concepts", 5),
-    Book(2, "Python for Humans", "Jane Doe", "A beginner-friendly guide to Python programming", 4),
-    Book(3, "FastAPI in Action", "Sebastian Ramirez", "Build high-performance APIs with FastAPI", 5),
-    Book(4, "Clean Code Explained", "Robert C. Martin", "Practical techniques for writing clean, readable code", 5),
-    Book(5, "The Bug Hunter", "Alex Morgan", "A deep dive into debugging and problem solving", 4),
-    Book(6, "Algorithms Made Easy", "Sarah Lin", "Simplified explanations of common algorithms", 4),
-    Book(7, "The Dev Mindset", "Chris Walker", "How developers think, learn, and grow", 3),
-    Book(8, "Databases Demystified", "Emily Stone", "Understanding SQL and NoSQL databases", 4),
-    Book(9, "System Design Basics", "Rahul Mehta", "An introduction to scalable system design", 5),
-    Book(10, "Async Programming with Python", "Nina Patel", "Mastering concurrency and async patterns", 4),
+    Book(1, "Computer Science Pro", "codingwithroby", "A very nice book about core CS concepts", 5 , 2003),
+    Book(2, "Python for Humans", "Jane Doe", "A beginner-friendly guide to Python programming", 4 , 2003),
+    Book(3, "FastAPI in Action", "Sebastian Ramirez", "Build high-performance APIs with FastAPI", 5 , 2002),
+    Book(4, "Clean Code Explained", "Robert C. Martin", "Practical techniques for writing clean, readable code", 5 , 2004),
+    Book(5, "The Bug Hunter", "Alex Morgan", "A deep dive into debugging and problem solving", 4 , 2005),
+    Book(6, "Algorithms Made Easy", "Sarah Lin", "Simplified explanations of common algorithms", 4 , 2020),
+    Book(7, "The Dev Mindset", "Chris Walker", "How developers think, learn, and grow", 3 , 2012),
+    Book(8, "Databases Demystified", "Emily Stone", "Understanding SQL and NoSQL databases", 4 , 2004),
+    Book(9, "System Design Basics", "Rahul Mehta", "An introduction to scalable system design", 5 , 2009),
+    Book(10, "Async Programming with Python", "Nina Patel", "Mastering concurrency and async patterns", 4 , 2025),
 ]
 
 
@@ -60,6 +64,15 @@ async def read_book(book_rating : int):
         if book.rating == book_rating:
             books_to_be_returned.append(book)
     return books_to_be_returned
+
+@app.get("/books/get-books-by-published-date")
+async def read_book(published_date : int):
+    books_to_be_returned = []
+    for book in BOOKS:
+        if book.published_date == published_date:
+            books_to_be_returned.append(book)
+    return books_to_be_returned
+
 
 @app.get("/books/{book_id}")
 async def read_book_by_id(book_id : int):
@@ -78,3 +91,16 @@ async def create_book(book_request : BookRequest):
 def find_book_id(book: Book):
     book.id = 1 if len(BOOKS) > 0 else 0
     return book
+
+@app.put("/books/update_book")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i] = book
+
+@app.delete("/books/delete_book/{book_id}")
+async def delete_book(book_id : int):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            break
